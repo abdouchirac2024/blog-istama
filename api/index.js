@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 // Importation des routes d'authentification depuis le fichier auth.route.js
 import authRoutes from './routes/auth.route.js';
+import path from 'path';
 
 // Chargement des variables d'environnement à partir du fichier .env
 dotenv.config();
@@ -18,6 +19,8 @@ mongoose.connect(process.env.MONGO).then(() => {
 .catch((err) => {
   console.log(err);
 });
+
+const __dirname = path.resolve();
 
 // Création d'une instance de l'application Express
 const app = express();
@@ -34,6 +37,12 @@ app.listen(3000, () => {
 app.use('/api/user', userRoutes);
 // Utilisation des routes d'authentification sous le préfixe '/api/auth'
 app.use('/api/auth', authRoutes);
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 // Middleware de gestion des erreurs : intercepte les erreurs survenues dans les routes précédentes
 app.use((err, req, res, next) => {
